@@ -292,10 +292,12 @@ impl DwaNode {
         let cmd = match self.compute_inner(now) {
             Ok(out) => {
                 self.last_status = status_name(out.status).to_owned();
-                if out.status == Status::Following && self.is_stuck(now) {
+                // 進める軌道が無くてその場で回るのと、回って追うのを繰り返すことがあるので、両方を立ち往生の見張りに入れる
+                let trying = matches!(out.status, Status::Following | Status::NoTrajectory);
+                if trying && self.is_stuck(now) {
                     self.last_status = "stuck".to_owned();
                 }
-                if out.status != Status::Following {
+                if !trying {
                     self.trail.clear();
                 }
                 let cmd = out.cmd;
@@ -801,6 +803,23 @@ mod tests {
         assert!(n.set_path(&json!({"poses": "x"})).is_err());
         assert_eq!(parse_path(&json!({"poses": [[1.0, 2.0], {"pose": {"position": {"x": 3, "y": 4}, "theta": 0.5}}]})).unwrap(),
             vec![Pose2::new(1.0, 2.0, 0.0), Pose2::new(3.0, 4.0, 0.5)]);
+    }
+
+    #[test]
+    fn reports_stuck_when_no_trajectory_lasts() {
+        let mut n = node(PoseSource::Odom);
+        n.settings.stuck_time = 0.3;
+        n.set_odometry(stamped(0.0, 0.0, 0.0, 1.0, "odom0"));
+        // ロボットの半径より近くに点があり、どの軌道もぶつかる
+        n.set_scan(scan(vec![0.15; 21]));
+        n.set_path(&path_json(&[(0.0, 0.0), (3.0, 0.0)])).unwrap();
+        n.compute();
+        assert_eq!(n.status()["status"], "no_trajectory");
+        std::thread::sleep(std::time::Duration::from_millis(350));
+        n.set_odometry(stamped(0.0, 0.0, 0.0, 1.35, "odom0"));
+        n.set_scan(scan(vec![0.15; 21]));
+        n.compute();
+        assert_eq!(n.status()["status"], "stuck");
     }
 
     #[test]

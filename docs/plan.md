@@ -24,7 +24,7 @@ ROS の [dwa_local_planner](https://github.com/ros-planning/navigation/tree/noet
 | 駆動 | 差動二輪を既定(`holonomic_robot: false`)。true で vy もサンプル | mobile_sim の既定は diff_drive |
 | 周期 | 自分の System の main_loop_ec(10 Hz)に `dwa_compute` を bind し、結果(Twist2D)をトピック `cmd_vel` に出す | mobile_sim は 0.5 s 指令が途切れると止まるので、planner_dwa が落ちてもロボットは止まる |
 | 到着 | `xy_goal_tolerance` に入ったら止まり、その場で回って `yaw_goal_tolerance` に合わせる(ROS の latched stop rotate) | ROS と同じ |
-| 立ち往生 | パスを追っているのに `stuck_time`(既定 5 s)で 5 cm も進まなければ状態を `stuck` にし、トピック `dwa_status` に出す | navigation_manager が見て経路を引き直す・止めるを決める |
+| 立ち往生 | パスを追っているのに(進める軌道が無く止まっている間も含めて) `stuck_time`(既定 5 s)で 5 cm も進まなければ状態を `stuck` にし、トピック `dwa_status` に出す | navigation_manager が見て経路を引き直す・止めるを決める |
 | 画面 | http://localhost:8004/: mobile_sim の地図、グローバルパス、scan の点、候補の軌道と選んだ軌道、速度、停止ボタン、主な重みの調整、ドラッグで直線のパスを置く | planner_dijkstra が無くても試せるように |
 
 ## 入出力

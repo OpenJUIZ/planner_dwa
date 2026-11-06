@@ -1,0 +1,28 @@
+# mobile_sim と planner_dwa を一緒に動かす
+#   docker compose -f docker/compose.yml up
+# ブラウザで http://localhost:8004/ (DWA) と http://localhost:8000/ (シミュレータ) を開く。
+# AMCL もグローバルパスも無いので、planner_dwa は odom を自己位置とし、画面の「直線のパスを置く」で試す。
+# localization_amcl と planner_dijkstra も動かすときは、それらのサービスを足し、
+# DWA_POSE_SOURCE: amcl と DWA_BRIDGE_AMCL_URL・DWA_BRIDGE_PLANNER_URL を消す(イメージの既定がその名前のサービスを読む)
+services:
+  mobile_sim:
+    # 別のイメージは MOBILE_SIM_IMAGE で渡す
+    image: ${MOBILE_SIM_IMAGE:-ghcr.io/openjuiz/mobile_sim:latest}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+  planner_dwa:
+    image: ghcr.io/openjuiz/planner_dwa:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - mobile_sim
+    environment:
+      MOBILE_SIM_URL: http://mobile_sim:8000
+      DWA_POSE_SOURCE: odom
+      DWA_BRIDGE_AMCL_URL: ""
+      DWA_BRIDGE_PLANNER_URL: ""
+    ports:
+      - "8004:8004"
+    restart: unless-stopped
