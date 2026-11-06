@@ -277,17 +277,11 @@ def check_quiet(cond, msg):
         sys.exit("FAILED: " + msg)
 
 
-def reset_robot(sim, x, y, theta):
-    call(sim, "robot_reset_pose0", "mobile_robot_reset_pose", "robot0", {"pose": pose(x, y, theta)})
-    time.sleep(0.5)
-
-
 def run(sim, base):
-    # 0) パスが無ければ止まっている。odom が届いている
-    reset_robot(sim, -2.0, 0.0, 0.0)
-    st = wait_for(lambda: (lambda s: s if s["pose"] and abs(s["pose"]["x"] + 2.0) < 0.05 else None)(
-        dwa_call(base, "get_state0", "get_state")), timeout=10)
-    check(st is not None, "the odom of mobile_sim reaches planner_dwa (topic odom)")
+    # 0) パスが無ければ止まっている。odom が届いている(mobile_sim は起動したまま、既定の初期位置 -2, 0 にいること)
+    st = wait_for(lambda: (lambda s: s if s["pose"] else None)(dwa_call(base, "get_state0", "get_state")), timeout=10)
+    check(st is not None and math.dist((st["pose"]["x"], st["pose"]["y"]), (-2.0, 0.0)) < 0.05,
+          "the odom of mobile_sim reaches planner_dwa (topic odom)")
     st = wait_for(lambda: (lambda s: s if s["obstacles"] else None)(dwa_call(base, "get_state0", "get_state")), timeout=10)
     check(st is not None and len(st["obstacles"]) > 50, "the scan reaches planner_dwa (topic scan)")
     check(st["status"] == "idle" and st["cmd"]["vx"] == 0.0, "idle without a path")

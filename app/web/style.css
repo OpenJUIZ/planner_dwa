@@ -1,0 +1,32 @@
+:root { font-family: system-ui, sans-serif; color: #222; background: #f4f4f2; }
+body { margin: 0; }
+header { display: flex; align-items: baseline; gap: 1rem; padding: 0.5rem 1rem; background: #2d3f4a; color: #fff; flex-wrap: wrap; }
+header h1 { font-size: 1.2rem; margin: 0; }
+.status { font-size: 0.85rem; }
+.status.ok { color: #9be39b; }
+.status.warn { color: #ffd27a; }
+.status.error { color: #ff9c9c; }
+main { display: flex; flex-wrap: wrap; gap: 1rem; padding: 1rem; }
+#view canvas { background: #cdcdcd; border: 1px solid #999; max-width: 100%; touch-action: none; }
+aside { min-width: 240px; max-width: 340px; display: flex; flex-direction: column; gap: 0.4rem; }
+aside h2 { font-size: 1rem; margin: 0.6rem 0 0.2rem; }
+.hint { font-size: 0.8rem; color: #666; margin: 0.2rem 0; }
+dl { display: grid; grid-template-columns: auto 1fr; gap: 0.2rem 0.6rem; margin: 0; font-size: 0.9rem; }
+dt { color: #666; }
+dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+dd.bad { color: #c00; }
+dd.good { color: #1a7a30; }
+.key { display: inline-block; width: 0.9em; height: 0.9em; margin: 0 0.25em 0 0.8em; vertical-align: -0.1em; border-radius: 50%; }
+.key.path { background: #2d6ad6; border-radius: 2px; height: 0.3em; vertical-align: 0.2em; }
+.key.best { background: #12a150; border-radius: 2px; height: 0.3em; vertical-align: 0.2em; }
+.key.cand { background: #8a8a8a; border-radius: 2px; height: 0.2em; vertical-align: 0.25em; }
+.key.bad { background: #e88; border-radius: 2px; height: 0.2em; vertical-align: 0.25em; }
+.key.obstacle { background: #d40000; width: 0.4em; height: 0.4em; vertical-align: 0.1em; }
+.key.local { background: #d4006a; }
+.key.robot { background: #e06000; }
+.key.truth { background: transparent; border: 2px solid #1a8a3a; }
+button.armed { background: #d4006a; color: #fff; }
+#map.picking { cursor: crosshair; }
+.row { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.param { display: grid; grid-template-columns: 9.5em 1fr 3.5em; gap: 0.3rem; align-items: center; font-size: 0.85rem; }
+.param output { font-variant-numeric: tabular-nums; text-align: right; }

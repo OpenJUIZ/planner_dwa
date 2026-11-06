@@ -531,15 +531,6 @@ mod tests {
                 }
             }
             out = p.compute(&pose, &vel, obstacles);
-            if std::env::var("DWA_DEBUG").is_ok() {
-                eprintln!(
-                    "{pose:?} {vel:?} {:?} {:?}",
-                    out.status,
-                    out.best
-                        .as_ref()
-                        .map(|b| (b.path_cost, b.goal_cost, b.occ_cost))
-                );
-            }
         }
         (pose, out, min_d)
     }

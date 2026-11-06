@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>planner_dwa</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>planner_dwa</h1>
+    <span id="connection" class="status">接続中…</span>
+    <span id="sim_connection" class="status"></span>
+  </header>
+  <main>
+    <section id="view">
+      <canvas id="map" width="640" height="640" aria-label="地図とパスと軌道"></canvas>
+      <p class="hint" id="legend">
+        <span class="key path"></span>グローバルパス
+        <span class="key best"></span>選んだ軌道
+        <span class="key cand"></span>候補
+        <span class="key bad"></span>衝突する候補
+        <span class="key obstacle"></span>scan の点
+        <span class="key local"></span>局所ゴール
+        <span class="key robot"></span>planner_dwa の姿勢
+        <span class="key truth"></span>真の姿勢(mobile_sim)
+      </p>
+    </section>
+    <aside>
+      <h2>操作</h2>
+      <div class="row">
+        <button id="set_goal" type="button">直線のパスを置く</button>
+        <button id="cancel" type="button">停止</button>
+      </div>
+      <p class="hint">「直線のパスを置く」を押してから地図の上で、目標の位置を押して向きの方へドラッグする。今の姿勢から目標まで直線のパスを置いて走る(planner_dijkstra が無くても試せる)。ふだんはトピック path(planner_dijkstra)のパスを追う</p>
+      <h2>パラメータ</h2>
+      <div id="params"></div>
+      <p id="message" class="hint" role="status"></p>
+      <h2>状態</h2>
+      <dl id="state">
+        <dt>状態</dt><dd id="s_status">-</dd>
+        <dt>自己位置</dt><dd id="s_pose">-</dd>
+        <dt>速度</dt><dd id="s_vel">-</dd>
+        <dt>指令</dt><dd id="s_cmd">-</dd>
+        <dt>ゴールまで</dt><dd id="s_goal">-</dd>
+        <dt>パス</dt><dd id="s_path">-</dd>
+        <dt>scan の点</dt><dd id="s_obstacles">-</dd>
+        <dt>候補</dt><dd id="s_cands">-</dd>
+        <dt>真の姿勢</dt><dd id="s_truth">-</dd>
+        <dt>bridge</dt><dd id="s_bridge">-</dd>
+        <dt>計算時間</dt><dd id="s_time">-</dd>
+      </dl>
+    </aside>
+  </main>
+  <script src="planner_dwa.js"></script>
+</body>
+</html>
