@@ -1,0 +1,8 @@
+target
+app/plugins
+app/.*.conf
+node_modules
+dist
+*.juizapp
+ui_test.png
+.git

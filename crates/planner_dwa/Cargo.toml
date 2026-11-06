@@ -1,0 +1,18 @@
+[package]
+name = "planner_dwa"
+description = "juiz component of planner_dwa: a DWA local planner that follows a global path"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+juiz_sdk.workspace = true
+juiz_std_types.workspace = true
+dwa_core.workspace = true
+# juiz#449 の回避(bridge)で、ほかのアプリの HTTP ブローカーを呼ぶ。HTTP だけなので TLS は入れない
+ureq = { version = "2", default-features = false }

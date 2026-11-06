@@ -1,0 +1,9 @@
+/target
+*.juizapp
+/app/plugins/
+.DS_Store
+/app/.integration_test.conf
+/node_modules
+/ui_test.png
+/dist/
+/ui/

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # 結合テストで動かす mobile_sim(0.3 系)
+  MOBILE_SIM_REF: main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo build --workspace
+      - run: cargo test --workspace
+
+  integration:
+    # mobile_sim と planner_dwa を juiz で起動し、トピックでつないで DWA で走らせ、続けてブラウザ画面を Playwright で操作する。
+    # プラグインは C ABI なので、pip の juiz-cli(別の rustc でビルドした juiz)でそのまま読める
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install juiz
+        run: pip install "juiz-cli==$(sed -n 's/^juiz_sdk = "=\(.*\)"/\1/p' Cargo.toml)"
+      - run: scripts/dev_plugin.sh
+      - name: Build mobile_sim
+        run: |
+          git clone --depth 1 --branch "$MOBILE_SIM_REF" https://github.com/OpenJUIZ/mobile_sim.git ../mobile_sim
+          (cd ../mobile_sim && scripts/dev_plugin.sh --release)
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1
+          npx playwright install --with-deps chromium
+      - name: Integration and UI test with mobile_sim
+        run: |
+          mkdir -p ui
+          python3 -u scripts/integration_test.py --mobile-sim ../mobile_sim --ui ui/ui_test.png
+      - name: Upload the screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screenshot
+          path: ui
+          if-no-files-found: ignore
