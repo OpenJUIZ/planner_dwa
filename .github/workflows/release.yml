@@ -1,0 +1,122 @@
+name: Release
+
+# ターゲットごとにプラグインをビルドし、.juizapp にまとめる。タグ v* では Releases に載せる。
+# プラグインは C ABI なので、rustc の版は問わない(juiz docs/spec/app-package.md §12.1)。
+# juiz の版は Cargo.toml の juiz_sdk から決めるので、juiz の新しい版に合わせるときは
+# Cargo.toml と app/juizapp.yaml の版を上げるだけでよい。
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  # パッケージの結合テストで動かす mobile_sim。この ref から .juizapp を手元で作る
+  MOBILE_SIM_REF: main
+
+jobs:
+  versions:
+    runs-on: ubuntu-latest
+    outputs:
+      juiz: ${{ steps.v.outputs.juiz }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: |
+          juiz=$(sed -n 's/^juiz_sdk = "=\(.*\)"/\1/p' Cargo.toml)
+          echo "juiz $juiz"
+          echo "juiz=$juiz" >> "$GITHUB_OUTPUT"
+          grep -qx "juiz: \">=$juiz\"" app/juizapp.yaml || { echo "app/juizapp.yaml の juiz を \">=$juiz\" にしてください"; exit 1; }
+      - name: Check the tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version=$(sed -n 's/^version: //p' app/juizapp.yaml)
+          [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME != app/juizapp.yaml version $version"; exit 1; }
+
+  plugin:
+    needs: versions
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux は古めの glibc でビルドする(新しい glibc にしか無い記号を使わないように)
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-22.04, lib: libplanner_dwa.so }
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-22.04-arm, lib: libplanner_dwa.so }
+          - { target: x86_64-apple-darwin, os: macos-15, lib: libplanner_dwa.dylib }
+          - { target: aarch64-apple-darwin, os: macos-15, lib: libplanner_dwa.dylib }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, lib: planner_dwa.dll }
+    runs-on: ${{ matrix.os }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "11.0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - run: cargo build -p planner_dwa --release --target ${{ matrix.target }}
+      - name: Collect
+        shell: bash
+        run: |
+          mkdir -p "plugins/${{ matrix.target }}"
+          cp "target/${{ matrix.target }}/release/${{ matrix.lib }}" "plugins/${{ matrix.target }}/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-${{ matrix.target }}
+          path: plugins
+
+  pack:
+    needs: [versions, plugin]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: plugin-*
+          path: plugins
+          merge-multiple: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # 配布先と同じく pip の juiz-cli を使う(別の rustc でビルドした juiz でも読めることもここで確かめられる)
+      - run: pip install "juiz-cli==${{ needs.versions.outputs.juiz }}"
+      - run: scripts/pack.sh plugins dist
+      - name: Build mobile_sim's package
+        # mobile_sim の .juizapp を手元で作る(Linux のプラグインだけ)。Releases に出るのを待たずに試せるように
+        run: |
+          git clone --depth 1 --branch "$MOBILE_SIM_REF" https://github.com/OpenJUIZ/mobile_sim.git ../mobile_sim
+          cd ../mobile_sim
+          scripts/dev_plugin.sh --release
+          scripts/pack.sh app/plugins ../mobile_sim_dist
+      - name: Test the package with juiz run
+        # mobile_sim は juiz run で、planner_dwa はパッケージを展開した conf(pose_source: odom に書き換え)で動かす
+        run: |
+          python3 -u scripts/integration_test.py \
+            --mobile-sim-juizapp ../mobile_sim_dist/mobile_sim-*.juizapp --juizapp dist/*.juizapp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: juizapp
+          path: dist/*.juizapp
+      - name: Publish to Releases
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # GitHub の画面で Release を作ってタグを打ったときは、その Release に .juizapp を足す
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/*.juizapp --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/*.juizapp --title "$GITHUB_REF_NAME" --generate-notes \
+              --notes "juiz ${{ needs.versions.outputs.juiz }} と mobile_sim 0.3 で動きます: \`pip install juiz-cli==${{ needs.versions.outputs.juiz }}\` の後、\`juiz run mobile_sim-0.3.x.juizapp\` を動かしたまま \`juiz run $(basename dist/*.juizapp)\`、http://localhost:8004/ を開く。localization_amcl・planner_dijkstra と一緒に使うときは README を見てください"
+          fi
