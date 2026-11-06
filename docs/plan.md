@@ -91,7 +91,8 @@ navigation_manager が受けて `nav/...` の名前で出し直す。cmd_vel は
 
 planner_dwa の側で要るのは conf の書き換えだけで、コードは変えない(葉の conf は navigation_manager のリポジトリに置く):
 
-- `subsystems` を消す(葉)。IPC ブローカー `planner_dwa` は残す
+- `subsystems` を消す(葉。mobile_sim は localization_amcl の下にあり、planner_dwa から直接つなぐと mobile_sim のマスターが 2 つになってトピックが navigation_manager に届かなくなる)。IPC ブローカー `planner_dwa` は残す
+- `juiz run` は juizapp.yaml の depends(mobile_sim)を subsystem に足してしまうので、パッケージを展開した conf を `juiz -f` で動かす
 - `bridge: null`
 - `subscribes` を navigation_manager が出し直す名前にする(例 `path: nav/path`、`pose: nav/amcl_pose`、`odom: nav/odom`、`scan: nav/scan`、`pose: nav/lidar_mount`)
 - `compute0` の `publishes` を `cmd_vel_dwa` にする(navigation_manager が `cmd_vel` に通す)
