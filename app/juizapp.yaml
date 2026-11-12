@@ -7,7 +7,7 @@ description: "DWA local planner: follows a global path with the robot pose and o
 license: MIT OR Apache-2.0
 homepage: https://github.com/OpenJUIZ/planner_dwa
 # C ABI の Rust プラグインなので、その ABI を読める juiz(Cargo.toml の juiz_sdk と同じ版以降)なら rustc は問わない
-juiz: ">=0.2.4"
+juiz: ">=0.2.7"
 entry: app.conf
 # odom・scan・lidar_mount を受け、cmd_vel を出す。juiz run が ipc://mobile_sim を subsystem に足して版を確かめる
 depends:
