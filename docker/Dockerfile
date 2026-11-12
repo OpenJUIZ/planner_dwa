@@ -4,7 +4,7 @@
 #
 # Rust のプラグインは C ABI なので、juiz は pip の juiz-cli をそのまま使う(版は Cargo.toml の juiz_sdk と揃える)。
 # mobile_sim のイメージは juiz run ではなく juiz -f で動くので、こちらも conf の HTTP の subsystem でつなぐ。
-ARG JUIZ_VERSION=0.2.4
+ARG JUIZ_VERSION=0.2.7
 
 # プラグインをビルドしてテストする
 FROM rust:1-bookworm AS build
