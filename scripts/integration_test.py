@@ -7,7 +7,7 @@ planner_dwa は pose_source: odom(AMCL 無し)、bridge 無しで動かす。パ
   scripts/dev_plugin.sh
   python3 scripts/integration_test.py --mobile-sim <mobile_sim のリポジトリ> [--juiz <juiz のパス>] [--ui SCREENSHOT]
     mobile_sim は app/plugins/<target>/ にプラグインを置いておく(mobile_sim の scripts/dev_plugin.sh)
-  python3 scripts/integration_test.py --mobile-sim-juizapp mobile_sim-0.3.3.juizapp --juizapp dist/planner_dwa-0.1.0.juizapp
+  python3 scripts/integration_test.py --mobile-sim-juizapp mobile_sim-0.3.4.juizapp --juizapp dist/planner_dwa-0.1.1.juizapp
     パッケージで動かす(ポートは mobile_sim 8000、planner_dwa 8004)
   python3 scripts/integration_test.py --sim-url http://localhost:8000 --dwa-url http://localhost:8004
     もう動いている mobile_sim と planner_dwa を試す(docker compose など。pose_source は odom にしておく)
