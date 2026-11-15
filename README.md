@@ -21,7 +21,7 @@ ROS の [dwa_local_planner](https://github.com/ros-planning/navigation/tree/noet
 juiz 0.2.4 以降と mobile_sim 0.3 系が要ります。
 
 ```sh
-pip install juiz-cli==0.2.7
+pip install juiz-cli==0.2.10
 juiz run mobile_sim-0.3.4.juizapp        # 先に mobile_sim を動かしておく(http://localhost:8000/)
 juiz run planner_dwa-0.1.1.juizapp       # 別の端末で
 ```
