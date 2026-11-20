@@ -325,7 +325,7 @@ dependencies = [
 
 [[package]]
 name = "dwa_core"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "serde",
  "serde_json",
@@ -656,9 +656,9 @@ dependencies = [
 
 [[package]]
 name = "juiz_idl"
-version = "0.2.11"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9ca402875c95067c72a08a4152da3c34621c2c20fcda76094245f65d6f6be6e"
+checksum = "b1817c295e1ef7331598a765234e71cf8d8fe4441fd09a96a7ffb87776a556a3"
 dependencies = [
  "base64",
  "clap",
@@ -670,9 +670,9 @@ dependencies = [
 
 [[package]]
 name = "juiz_macro"
-version = "0.2.11"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2998ee45aa7dd8a5ecd180e076bd498407b7209584c142acd77f239e82c75bd8"
+checksum = "8596f2cdd59bcfd510c24f5f1468bbd87d5ae77188bcd9aa00f46d3a639041a7"
 dependencies = [
  "anyhow",
  "litrs",
@@ -684,9 +684,9 @@ dependencies = [
 
 [[package]]
 name = "juiz_sdk"
-version = "0.2.11"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41ea490f91d3a7a02e7d4e42ff92e8d846d0834dc0ae73cd486b2de0208d2c4f"
+checksum = "56697f499f8ed7ccf29b969af646000944dfcda1867b6a9241ed3616c3a18899"
 dependencies = [
  "anyhow",
  "base64",
@@ -705,9 +705,9 @@ dependencies = [
 
 [[package]]
 name = "juiz_std_types"
-version = "0.2.11"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "491cc6813fde0f60ffa926eadc428c2d0052ceed71e027e1e71e12b6738524d2"
+checksum = "955b9ff958419aafc2c06392b7a6b5c449429074d9214b551c97f69822f9e587"
 dependencies = [
  "juiz_idl",
  "juiz_sdk",
@@ -715,9 +715,9 @@ dependencies = [
 
 [[package]]
 name = "juiz_types"
-version = "0.2.11"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "067f2fc1b915808b4f8c5f0e2893b2351954f62d19072effb7e996265be0cc75"
+checksum = "3dda2f59313ee01e57e03c654f47db2405071ca80dd6ffc68059d525a04b7356"
 dependencies = [
  "base64",
  "regex",
@@ -849,7 +849,7 @@ checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 
 [[package]]
 name = "planner_dwa"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "dwa_core",
  "juiz_sdk",
