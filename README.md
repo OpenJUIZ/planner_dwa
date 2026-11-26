@@ -18,17 +18,31 @@ ROS の [dwa_local_planner](https://github.com/ros-planning/navigation/tree/noet
 
 ## 動かす
 
-juiz 0.2.4 以降と mobile_sim 0.3 系が要ります。
+juiz 0.3.7 以降と mobile_sim 0.3 系が要ります。
 
 ```sh
-pip install juiz-cli==0.3.2
+pip install juiz-cli==0.3.7
 juiz run mobile_sim-0.3.4.juizapp        # 先に mobile_sim を動かしておく(http://localhost:8000/)
-juiz run planner_dwa-0.1.4.juizapp       # 別の端末で
+juiz run planner_dwa-0.1.5.juizapp       # 別の端末で
 ```
 
 http://localhost:8004/ を開き、「直線のパスを置く」を押してから地図の上で目標を押して向きの方へドラッグすると、
 今の姿勢からそこまでの直線のパスを置いて走ります(planner_dijkstra が無くても試せます)。
 画面では候補の軌道(灰色、ぶつかるものは赤)、選んだ軌道(緑)、scan の点、局所ゴールが見え、主な重みと速度をスライダーで変えられます。
+
+### 別の機械の mobile_sim につなぐ
+
+planner_dwa は mobile_sim を名前の登録で探します(juiz 0.3.7 のネーミングサービス)。同じ機械に mobile_sim が動いていなければ、LAN で `--advertise` 付きで起動した mobile_sim を見つけてつなぎます。pip の `juiz-cli` にはこの機能が入っています([ネーミングサービス](https://openjuiz.github.io/ja/guides/naming/#lan-の自動発見mdns))。
+
+```sh
+juiz run mobile_sim-<version>.juizapp --advertise      # mobile_sim の機械で
+juiz run planner_dwa-<version>.juizapp            # planner_dwa の機械で
+# using mobile_sim at http://192.168.0.10:8000 (found in the name list)
+```
+
+- マルチキャストが届かない網(Docker の bridge、一部の Wi-Fi、サブネット越え)では見つかりません。そのときは `--depend mobile_sim=http://192.168.0.10:8000` でつなぎ先を書くか、`--peer http://192.168.0.10:8000` で問い合わせ先を教えます。
+- mobile_sim は、planner_dwa がつないできたアドレスの 8004 番にトピックを送ります。mobile_sim の機械からその番号に届くようにしてください。
+- mobile_sim がどこにも見つからないと `mobile_sim is not registered on this machine or the LAN.` で止まります。先に mobile_sim を起動してください。juiz 0.3.6 以前で動かした mobile_sim は登録されないので、そのときは `--depend mobile_sim=ipc://mobile_sim` で指定します。
 
 ### 自己位置・グローバルパスとつなぐ
 
