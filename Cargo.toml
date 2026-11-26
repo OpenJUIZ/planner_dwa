@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/dwa_core", "crates/planner_dwa"]
 
 [workspace.package]
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/OpenJUIZ/planner_dwa"
@@ -11,6 +11,6 @@ rust-version = "1.89"
 
 [workspace.dependencies]
 # juiz_sdk の版は app/juizapp.yaml の juiz と揃える(release.yml が確かめる)
-juiz_sdk = "=0.3.2"
-juiz_std_types = "=0.3.2"
+juiz_sdk = "=0.3.7"
+juiz_std_types = "=0.3.7"
 dwa_core = { path = "crates/dwa_core" }

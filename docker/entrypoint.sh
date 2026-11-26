@@ -1,6 +1,6 @@
 #!/bin/sh
 # mobile_sim が起動するのを待ってから planner_dwa を動かす。
-# app.conf の IPC の subsystem を MOBILE_SIM_URL の HTTP に置き換え、pose_source を DWA_POSE_SOURCE にした conf を作り、juiz -f で動かす
+# app.conf の mobile_sim の subsystem を MOBILE_SIM_URL の HTTP に置き換え、pose_source を DWA_POSE_SOURCE にした conf を作り、juiz -f で動かす
 # (mobile_sim のイメージは juiz run で動いていないので、juiz run の depends の確かめは使えない)。
 # bridge の URL はプラグインが環境変数 DWA_BRIDGE_AMCL_URL・DWA_BRIDGE_PLANNER_URL から読む
 set -eu
@@ -11,8 +11,9 @@ import sys, time, urllib.parse, urllib.request
 url, conf, pose_source = sys.argv[1].rstrip("/"), sys.argv[2], sys.argv[3]
 host = urllib.parse.urlparse(url).netloc
 src = open("/opt/planner_dwa/app.conf").read()
+# app.conf は mobile_sim を名前の登録で引く(type_name: name)。Docker の bridge では登録も LAN の広告も届かないので HTTP にする
 ipc_subsystem = '''  - "package": "mobile_sim"
-    "type_name": "ipc"
+    "type_name": "name"
     "name": "mobile_sim"'''
 ipc_broker = '''"brokers":
   - "type_name": "ipc"
